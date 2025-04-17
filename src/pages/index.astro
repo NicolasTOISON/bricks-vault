@@ -1,21 +1,58 @@
 ---
-import Layout from '../layouts/Layout.astro'
-import BarcodeScanner from '../components/BarcodeScanner.astro'
-import LegoSetList from '../components/LegoSetList.astro'
+import MainLayout from '../layouts/MainLayout.astro';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+const sets = await prisma.legoSet.findMany({
+  take: 6,
+  orderBy: {
+    createdAt: 'desc',
+  },
+});
 ---
 
-<Layout title="LEGO Collection Manager">
-  <main class="container mx-auto px-4 py-8">
-    <h1 class="text-4xl font-bold text-center mb-8">LEGO Collection Manager</h1>
+<MainLayout title="Accueil">
+  <div class="space-y-8">
+    <section class="text-center py-12">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">
+        Bienvenue sur Brick Vault
+      </h1>
+      <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+        Gérez votre collection de sets LEGO, suivez vos achats et ventes, et gardez un œil sur votre inventaire.
+      </p>
+    </section>
 
-    <div class="mb-8">
-      <h2 class="text-2xl font-bold mb-4">Scan Barcode</h2>
-      <BarcodeScanner />
-    </div>
+    <section>
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Derniers sets ajoutés</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {sets.map((set) => (
+          <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">{set.name}</h3>
+            <p class="text-gray-600 mb-2">Thème: {set.theme}</p>
+            <p class="text-gray-600 mb-2">Année: {set.year}</p>
+            <p class="text-gray-600 mb-2">Pièces: {set.pieces}</p>
+            <p class="text-gray-600">Prix: {set.retailPrice}€</p>
+          </div>
+        ))}
+      </div>
+    </section>
 
-    <div>
-      <h2 class="text-2xl font-bold mb-4">Your Collection</h2>
-      <LegoSetList />
-    </div>
-  </main>
-</Layout>
+    <section class="bg-white rounded-lg shadow p-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Statistiques rapides</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="text-center">
+          <p class="text-3xl font-bold text-gray-900">0</p>
+          <p class="text-gray-600">Sets en stock</p>
+        </div>
+        <div class="text-center">
+          <p class="text-3xl font-bold text-gray-900">0</p>
+          <p class="text-gray-600">Achats ce mois</p>
+        </div>
+        <div class="text-center">
+          <p class="text-3xl font-bold text-gray-900">0</p>
+          <p class="text-gray-600">Ventes ce mois</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</MainLayout>

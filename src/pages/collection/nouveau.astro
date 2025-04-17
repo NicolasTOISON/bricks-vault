@@ -1,0 +1,115 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Nouveau set">
+  <div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Ajouter un nouveau set</h1>
+
+    <form class="space-y-6" method="POST" action="/api/sets">
+      <div>
+        <label for="setNumber" class="block text-sm font-medium text-gray-700">
+          Numéro du set
+        </label>
+        <input
+          type="text"
+          name="setNumber"
+          id="setNumber"
+          required
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700">
+          Nom du set
+        </label>
+        <input
+          type="text"
+          name="name"
+          id="name"
+          required
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label for="theme" class="block text-sm font-medium text-gray-700">
+          Thème
+        </label>
+        <input
+          type="text"
+          name="theme"
+          id="theme"
+          required
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label for="year" class="block text-sm font-medium text-gray-700">
+          Année
+        </label>
+        <input
+          type="number"
+          name="year"
+          id="year"
+          required
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label for="pieces" class="block text-sm font-medium text-gray-700">
+          Nombre de pièces
+        </label>
+        <input
+          type="number"
+          name="pieces"
+          id="pieces"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label for="minifigs" class="block text-sm font-medium text-gray-700">
+          Nombre de minifigures
+        </label>
+        <input
+          type="number"
+          name="minifigs"
+          id="minifigs"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label for="retailPrice" class="block text-sm font-medium text-gray-700">
+          Prix de vente conseillé
+        </label>
+        <input
+          type="number"
+          step="0.01"
+          name="retailPrice"
+          id="retailPrice"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div class="flex justify-end space-x-4">
+        <a
+          href="/collection"
+          class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300"
+        >
+          Annuler
+        </a>
+        <button
+          type="submit"
+          class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+        >
+          Ajouter le set
+        </button>
+      </div>
+    </form>
+  </div>
+</MainLayout> 

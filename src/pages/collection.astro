@@ -1,0 +1,97 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+const sets = await prisma.legoSet.findMany({
+  orderBy: {
+    name: 'asc',
+  },
+});
+---
+
+<MainLayout title="Collection">
+  <div class="space-y-8">
+    <div class="flex justify-between items-center">
+      <h1 class="text-3xl font-bold text-gray-900">Collection</h1>
+      <a
+        href="/collection/nouveau"
+        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+      >
+        Ajouter un set
+      </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Numéro
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Nom
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Thème
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Année
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Pièces
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Prix
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {sets.map((set) => (
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {set.setNumber}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {set.name}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {set.theme}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {set.year}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {set.pieces}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {set.retailPrice}€
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <div class="flex space-x-2">
+                    <a
+                      href={`/collection/${set.id}`}
+                      class="text-blue-600 hover:text-blue-900"
+                    >
+                      Voir
+                    </a>
+                    <a
+                      href={`/collection/${set.id}/modifier`}
+                      class="text-yellow-600 hover:text-yellow-900"
+                    >
+                      Modifier
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</MainLayout> 
