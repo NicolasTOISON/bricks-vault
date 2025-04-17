@@ -1,8 +1,9 @@
 ---
-import Layout from '../components/Layout.astro';
 import InventoryList from '../components/InventoryList.astro';
-import { prisma } from '../lib/prisma';
+import { PrismaClient } from '@prisma/client';
+import MainLayout from '../layouts/MainLayout.astro';
 
+const prisma = new PrismaClient();
 const inventory = await prisma.inventory.findMany({
   include: {
     legoSet: true,
@@ -10,8 +11,8 @@ const inventory = await prisma.inventory.findMany({
 });
 ---
 
-<Layout title="Inventaire">
+<MainLayout title="Inventaire">
   <div class="container mx-auto px-4 py-8">
     <InventoryList inventory={inventory} />
   </div>
-</Layout> 
+</MainLayout> 
