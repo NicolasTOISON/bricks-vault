@@ -1,0 +1,17 @@
+---
+import Layout from '../components/Layout.astro';
+import InventoryList from '../components/InventoryList.astro';
+import { prisma } from '../lib/prisma';
+
+const inventory = await prisma.inventory.findMany({
+  include: {
+    legoSet: true,
+  },
+});
+---
+
+<Layout title="Inventaire">
+  <div class="container mx-auto px-4 py-8">
+    <InventoryList inventory={inventory} />
+  </div>
+</Layout> 

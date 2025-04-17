@@ -9,7 +9,7 @@ export const POST: APIRoute = async ({ request }) => {
     
     const purchase = await prisma.purchase.create({
       data: {
-        legoSetId: formData.get('legoSetId') as string,
+        legoSetId: Number(formData.get('legoSetId')),
         price: parseFloat(formData.get('price') as string),
         quantity: parseInt(formData.get('quantity') as string),
         condition: formData.get('condition') as Condition,

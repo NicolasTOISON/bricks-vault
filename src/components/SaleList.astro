@@ -1,0 +1,195 @@
+---
+import { LegoSet, Sale, Condition, Inventory } from '@prisma/client';
+
+interface Props {
+  sales: (Sale & {
+    legoSet: LegoSet;
+  })[];
+  inventory: (Inventory & {
+    legoSet: LegoSet;
+  })[];
+}
+
+const { sales, inventory } = Astro.props;
+---
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h2 class="text-2xl font-bold">Ventes</h2>
+    <button
+      id="addSaleBtn"
+      class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+    >
+      Ajouter une vente
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {sales.map((sale) => (
+      <div
+        class="bg-white rounded-lg shadow p-6 space-y-4"
+      >
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="text-xl font-semibold">{sale.legoSet.name}</h3>
+            <p class="text-gray-600">Année: {sale.legoSet.year}</p>
+            <p class="text-gray-600">Pièces: {sale.legoSet.pieces}</p>
+          </div>
+          {sale.legoSet.image && (
+            <img
+              src={sale.legoSet.image}
+              alt={sale.legoSet.name}
+              class="w-20 h-20 object-cover rounded"
+            />
+          )}
+        </div>
+        <div class="space-y-2">
+          <p>Prix: {sale.price}€</p>
+          <p>Quantité: {sale.quantity}</p>
+          <p>État: {sale.condition}</p>
+          <p>Date: {new Date(sale.saleDate).toLocaleDateString()}</p>
+          {sale.buyer && <p>Acheteur: {sale.buyer}</p>}
+          {sale.notes && <p>Notes: {sale.notes}</p>}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Modal d'ajout -->
+  <div id="addModal" class="fixed inset-0 bg-black bg-opacity-50 hidden">
+    <div class="bg-white p-6 rounded-lg w-full max-w-md">
+      <h3 class="text-xl font-bold mb-4">Ajouter une vente</h3>
+      <form id="addForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">
+            Set LEGO
+          </label>
+          <select
+            name="legoSetId"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            <option value="">Sélectionner un set</option>
+            {inventory.map((item) => (
+              <option value={item.legoSet.id}>
+                {item.legoSet.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">
+            Prix
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            name="price"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">
+            Quantité
+          </label>
+          <input
+            type="number"
+            name="quantity"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">
+            État
+          </label>
+          <select
+            name="condition"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          >
+            {Object.values(Condition).map((condition) => (
+              <option value={condition}>
+                {condition}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">
+            Date de vente
+          </label>
+          <input
+            type="date"
+            name="saleDate"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">
+            Acheteur
+          </label>
+          <input
+            type="text"
+            name="buyer"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">
+            Notes
+          </label>
+          <textarea
+            name="notes"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          ></textarea>
+        </div>
+        <div class="flex justify-end space-x-2">
+          <button
+            type="button"
+            class="px-4 py-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Ajouter
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Gestion des modales et formulaires
+  const addModal = document.getElementById('addModal');
+  const addBtn = document.getElementById('addSaleBtn');
+  const addForm = document.getElementById('addForm');
+
+  addBtn?.addEventListener('click', () => {
+    addModal?.classList.remove('hidden');
+  });
+
+  addForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    
+    try {
+      const response = await fetch('/api/sales', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(Object.fromEntries(formData)),
+      });
+
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        console.error('Failed to add sale');
+      }
+    } catch (error) {
+      console.error('Error adding sale:', error);
+    }
+  });
+</script> 

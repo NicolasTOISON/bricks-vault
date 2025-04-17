@@ -7,14 +7,62 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const formData = await request.formData();
     
+    // Validation des champs requis
+    const name = formData.get('name');
+    const year = formData.get('year');
+    const pieces = formData.get('pieces');
+
+    if (!name || !year || !pieces) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Missing required fields', 
+          details: {
+            name: !name ? 'Name is required' : null,
+            year: !year ? 'Year is required' : null,
+            pieces: !pieces ? 'Pieces count is required' : null,
+          }
+        }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
+
+    // Conversion et validation des types
+    const yearNum = parseInt(year as string);
+    const piecesNum = parseInt(pieces as string);
+    const minifigsValue = formData.get('minifigs');
+    const minifigsNum = minifigsValue ? parseInt(minifigsValue as string) : null;
+    const imageValue = formData.get('image') as string || null;
+
+    if (isNaN(yearNum) || isNaN(piecesNum) || (minifigsValue && isNaN(minifigsNum as number))) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid number format',
+          details: {
+            year: isNaN(yearNum) ? 'Year must be a number' : null,
+            pieces: isNaN(piecesNum) ? 'Pieces count must be a number' : null,
+            minifigs: minifigsValue && isNaN(minifigsNum as number) ? 'Minifigs count must be a number' : null,
+          }
+        }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
+
     const setData = {
-      setNumber: formData.get('setNumber') as string,
-      name: formData.get('name') as string,
-      theme: formData.get('theme') as string,
-      year: parseInt(formData.get('year') as string),
-      pieces: formData.get('pieces') ? parseInt(formData.get('pieces') as string) : null,
-      minifigs: formData.get('minifigs') ? parseInt(formData.get('minifigs') as string) : null,
-      retailPrice: formData.get('retailPrice') ? parseFloat(formData.get('retailPrice') as string) : null,
+      name: name as string,
+      year: yearNum,
+      pieces: piecesNum,
+      minifigs: minifigsNum,
+      image: imageValue,
     };
 
     const set = await prisma.legoSet.create({
@@ -29,12 +77,18 @@ export const POST: APIRoute = async ({ request }) => {
     });
   } catch (error) {
     console.error('Error creating set:', error);
-    return new Response(JSON.stringify({ error: 'Failed to create set' }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    return new Response(
+      JSON.stringify({ 
+        error: 'Failed to create set',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
   }
 };
 
@@ -54,11 +108,17 @@ export const GET: APIRoute = async () => {
     });
   } catch (error) {
     console.error('Error fetching sets:', error);
-    return new Response(JSON.stringify({ error: 'Failed to fetch sets' }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    return new Response(
+      JSON.stringify({ 
+        error: 'Failed to fetch sets',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
   }
 }; 

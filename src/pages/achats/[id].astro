@@ -1,0 +1,105 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { PrismaClient, Condition } from '@prisma/client';
+
+const prisma = new PrismaClient();
+const { id } = Astro.params;
+
+const purchase = await prisma.purchase.findUnique({
+  where: { id: Number(id) },
+  include: {
+    legoSet: true,
+  },
+});
+
+if (!purchase) {
+  return Astro.redirect('/achats');
+}
+---
+
+<MainLayout title={`Achat - ${purchase.legoSet.name}`}>
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold">Détails de l'achat</h1>
+      <div class="flex space-x-4">
+        <a
+          href={`/achats/${id}/modifier`}
+          class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
+        >
+          Modifier
+        </a>
+        <a
+          href="/achats"
+          class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+        >
+          Retour
+        </a>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h2 class="text-xl font-semibold mb-4">Informations du set</h2>
+          <dl class="space-y-4">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Set LEGO</dt>
+              <dd class="mt-1 text-lg">{purchase.legoSet.name}</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Quantité</dt>
+              <dd class="mt-1 text-lg">{purchase.quantity}</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Prix</dt>
+              <dd class="mt-1 text-lg">{purchase.price}€</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">État</dt>
+              <dd class="mt-1 text-lg">
+                {(() => {
+                  switch (purchase.condition) {
+                    case Condition.NEW:
+                      return 'Neuf';
+                    case Condition.NEW_SEALED:
+                      return 'Neuf scellé';
+                    case Condition.USED_COMPLETE:
+                      return 'Usage complet';
+                    case Condition.USED_INCOMPLETE:
+                      return 'Usage incomplet';
+                    case Condition.USED:
+                      return 'Usage';
+                    default:
+                      return purchase.condition;
+                  }
+                })()}
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <div>
+          <h2 class="text-xl font-semibold mb-4">Informations de l'achat</h2>
+          <dl class="space-y-4">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Date d'achat</dt>
+              <dd class="mt-1 text-lg">
+                {new Date(purchase.purchaseDate).toLocaleDateString()}
+              </dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Vendeur</dt>
+              <dd class="mt-1 text-lg">{purchase.seller}</dd>
+            </div>
+            {purchase.notes && (
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Notes</dt>
+                <dd class="mt-1 text-lg whitespace-pre-line">{purchase.notes}</dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</MainLayout> 

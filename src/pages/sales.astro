@@ -1,0 +1,24 @@
+---
+import Layout from '../components/Layout.astro';
+import SaleList from '../components/SaleList.astro';
+import { prisma } from '../lib/prisma';
+
+const [sales, inventory] = await Promise.all([
+  prisma.sale.findMany({
+    include: {
+      legoSet: true,
+    },
+  }),
+  prisma.inventory.findMany({
+    include: {
+      legoSet: true,
+    },
+  }),
+]);
+---
+
+<Layout title="Ventes">
+  <div class="container mx-auto px-4 py-8">
+    <SaleList sales={sales} inventory={inventory} />
+  </div>
+</Layout> 

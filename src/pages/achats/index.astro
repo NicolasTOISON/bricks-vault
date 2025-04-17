@@ -1,6 +1,6 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Condition } from '@prisma/client';
 
 const prisma = new PrismaClient();
 const purchases = await prisma.purchase.findMany({
@@ -13,37 +13,103 @@ const purchases = await prisma.purchase.findMany({
 });
 ---
 
-<MainLayout title="Mes achats">
-  <div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold">Mes achats</h1>
-      <a href="/achats/nouveau" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-        Ajouter un achat
+<MainLayout title="Achats">
+  <div class="space-y-8">
+    <div class="flex justify-between items-center">
+      <h1 class="text-3xl font-bold text-gray-900">Achats</h1>
+      <a
+        href="/achats/nouveau"
+        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+      >
+        Nouvel achat
       </a>
     </div>
 
-    <div class="grid gap-6">
-      {purchases.map((purchase) => (
-        <div class="bg-white rounded-lg shadow p-6">
-          <div class="flex justify-between items-start">
-            <div>
-              <h2 class="text-xl font-semibold">{purchase.legoSet.name}</h2>
-              <p class="text-gray-600">Acheté le {new Date(purchase.purchaseDate).toLocaleDateString()}</p>
-            </div>
-            <div class="text-right">
-              <p class="text-lg font-semibold">{purchase.price}€</p>
-              <p class="text-gray-600">Quantité: {purchase.quantity}</p>
-            </div>
-          </div>
-          <div class="mt-4">
-            <p class="text-gray-600">État: {purchase.condition}</p>
-            <p class="text-gray-600">Vendeur: {purchase.seller}</p>
-            {purchase.notes && (
-              <p class="text-gray-600 mt-2">Notes: {purchase.notes}</p>
-            )}
-          </div>
-        </div>
-      ))}
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Date
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Set
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Quantité
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Prix
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                État
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Vendeur
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            {purchases.map((purchase) => (
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {new Date(purchase.purchaseDate).toLocaleDateString()}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {purchase.legoSet.name}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {purchase.quantity}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {purchase.price}€
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {(() => {
+                    switch (purchase.condition) {
+                      case Condition.NEW:
+                        return 'Neuf';
+                      case Condition.NEW_SEALED:
+                        return 'Neuf scellé';
+                      case Condition.USED_COMPLETE:
+                        return 'Usage complet';
+                      case Condition.USED_INCOMPLETE:
+                        return 'Usage incomplet';
+                      case Condition.USED:
+                        return 'Usage';
+                      default:
+                        return purchase.condition;
+                    }
+                  })()}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {purchase.seller}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <div class="flex space-x-2">
+                    <a
+                      href={`/achats/${purchase.id}`}
+                      class="text-blue-600 hover:text-blue-900"
+                    >
+                      Voir
+                    </a>
+                    <a
+                      href={`/achats/${purchase.id}/modifier`}
+                      class="text-yellow-600 hover:text-yellow-900"
+                    >
+                      Modifier
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </MainLayout> 

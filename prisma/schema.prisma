@@ -11,37 +11,31 @@ datasource db {
 }
 
 model LegoSet {
-  id          Int      @id @default(autoincrement())
-  setNumber   String   @unique
+  id          Int       @id @default(autoincrement())
   name        String
-  theme       String
   year        Int
-  pieces      Int?
+  pieces      Int
   minifigs    Int?
-  retailPrice Float?
-  images      String[] @default([])
-  status      SetStatus @default(ACTIVE)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
+  image       String?
   purchases   Purchase[]
   sales       Sale[]
   inventory   Inventory[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Purchase {
-  id          Int      @id @default(autoincrement())
-  legoSetId   Int
-  legoSet     LegoSet  @relation(fields: [legoSetId], references: [id])
-  price       Float
-  quantity    Int      @default(1)
-  condition   Condition
-  purchaseDate DateTime
-  seller      String?
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            Int       @id @default(autoincrement())
+  legoSetId     Int
+  legoSet       LegoSet   @relation(fields: [legoSetId], references: [id])
+  price         Float
+  quantity      Int
+  condition     Condition
+  purchaseDate  DateTime
+  seller        String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Sale {
@@ -78,8 +72,8 @@ enum SetStatus {
 
 enum Condition {
   NEW
-  USED
   NEW_SEALED
   USED_COMPLETE
   USED_INCOMPLETE
+  USED
 } 
